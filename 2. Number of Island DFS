@@ -1,15 +1,16 @@
+#Leetcode
+
 class Solution {
-  public:
-  
-    // Using DFS 
+public:
+// Using DFS 
     // space complexity => O(N*M)
     // time complexity => O(N*M)
     
-    void DFS(int row, int col, vector<vector<int>>& grid, int n, int m)
+    void DFS(int row, int col, vector<vector<char>>& grid, int n, int m)
     {
         //base cases to return
         //if out of boundry then return 
-        if(row<0 || col<0 || row>n || col>m)
+        if(row<0 || col<0 || row>=n || col>=m)
         {
             return;
         }
@@ -27,7 +28,7 @@ class Solution {
         DFS(row,col+1,grid,n,m);
     }
     
-    int countDistinctIslands(vector<vector<int>>& grid) {
+    int numIslands(vector<vector<char>>& grid) {
         int n=grid.size();
         int m=grid[0].size();
         int count=0;
@@ -43,5 +44,6 @@ class Solution {
                 }
             }
         }
+        return count;
     }
 };
