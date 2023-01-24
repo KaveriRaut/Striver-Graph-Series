@@ -1,0 +1,57 @@
+class Solution {
+public:
+// Using DFS 
+    // space complexity => O(N*M)
+    // time complexity => O(N*M)
+    
+    void BFS(int row, int col, vector<vector<char>>& grid, int n, int m, vector<vector<int>> &visited)
+    {
+        visited[row][col]=1;//marked as visited
+        queue<pair<int,int>> q; //queue to store the ()src,dest) pair
+        q.push({row,col}); //q.push current (src,dest) pair
+
+        while(!q.empty())
+        {
+            int currRow = q.front().first;
+            int currCol = q.front().second;
+            q.pop(); //now pop the front pair out
+
+            //to get all 4side combinations to check for land
+            for(int def_row=-1;def_row<=1;def_row++)
+            {
+                for(int def_col=-1;def_col<=1;def_col++)
+                {
+                    //to get all 9 combinations
+                    int newRow = currRow + def_row;
+                    int newCol = currCol + def_col;
+                    //now check all possible conditions of => out of boundry, land exist, and not visited already
+                    if((newRow>=0 && newRow<n) && (newCol>=0 && newCol<m) && (grid[newRow][newCol]=='1') && (!visited[newRow][newCol]))
+                    {
+                        q.push({newRow,newCol}); //push it into queue
+                        visited[newRow][newCol]=1; //mark it as visited now
+                    }
+                }
+            } 
+        }
+    }
+    
+    int numIslands(vector<vector<char>>& grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        int count=0;
+        
+        vector<vector<int>> visited(n,vector(m,0)); //visited matrix => intialized to zero
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<m;j++)
+            {
+                if(!visited[i][j] && grid[i][j]=='1') //not visited and if land found=>call rec DFS
+                {
+                    count++;
+                    BFS(i,j,grid,n,m,visited);
+                }
+            }
+        }
+        return count;
+    }
+};
