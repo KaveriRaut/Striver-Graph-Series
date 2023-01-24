@@ -1,0 +1,47 @@
+class Solution {
+  public:
+  
+    // Using DFS 
+    // space complexity => O(N*M)
+    // time complexity => O(N*M)
+    
+    void DFS(int row, int col, vector<vector<int>>& grid, int n, int m)
+    {
+        //base cases to return
+        //if out of boundry then return 
+        if(row<0 || col<0 || row>n || col>m)
+        {
+            return;
+        }
+        //if already visited and made as '0'
+        if(grid[row][col]=='0')
+        {
+            return;
+        }
+        //now actual processing=>if land and not visited before mark it visited as '0'
+        grid[row][col]='0'; //marked as visited
+        //now call reccursively DFS() on all 4sides
+        DFS(row-1,col,grid,n,m);
+        DFS(row+1,col,grid,n,m);
+        DFS(row,col-1,grid,n,m);
+        DFS(row,col+1,grid,n,m);
+    }
+    
+    int countDistinctIslands(vector<vector<int>>& grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        int count=0;
+        
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<m;j++)
+            {
+                if(grid[i][j]=='1') //if land found=>call rec DFS
+                {
+                    DFS(i,j,grid,n,m);
+                    count++;
+                }
+            }
+        }
+    }
+};
