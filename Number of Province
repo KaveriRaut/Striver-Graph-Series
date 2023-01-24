@@ -1,0 +1,49 @@
+
+  Space Complexity => O(N) + O(N) => visitedArr + rec. calls stack 
+  Time Complexity => O(V) + O(V+2E) => dfs Call For each V nodes + sum of dfs calls for all neighbours(edges) of all nodes
+ 
+ 
+class Solution {
+ private:
+        void dfs(int currNode,vector<int> adjlist[],int visited[])
+        {
+            visited[currNode]=1;
+            
+            for(int x:adjlist[currNode]) //check for currNode ke neighbours=>if not visited call dfs on them
+            {
+                if(!visited[x])
+                {
+                    dfs(x,adjlist,visited);
+                }
+            }
+        }
+  public:
+  
+    int numProvinces(vector<vector<int>> adj, int V) {
+        vector<int> adjlist[V];
+        //copy adj matrix into adj list
+        for(int i=0;i<V;i++)
+        {
+            for(int j=0;j<V;j++)
+            {
+                if(adj[i][j]==1 && i!=j)
+                {
+                    adjlist[i].push_back(j);
+                    adjlist[j].push_back(i);
+                }
+            }
+        }
+        //now find unvisited nodes as new startNode for dfs call means we found the new province
+        int visited[V]={0};
+        int count=0;
+        for(int i=0;i<V;i++)
+        {
+            if(!visited[i]) //if not visited means [i] is new startNode of new Province
+            {
+                count++;
+                dfs(i,adjlist,visited);
+            }
+        }
+        return count;
+    }
+};
