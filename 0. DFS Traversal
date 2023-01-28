@@ -1,0 +1,26 @@
+Space Complexity : O(N)+O(N) => visistedArr + rec. Stack used
+Time Complexity : O(N+2E) => for all nodes(N) with all its neighbours of each(2E)
+
+class Solution {
+  public:
+  void dfs(int currNode,vector<int> adj[],int vis[], vector<int>&list)
+  {
+      vis[currNode]=1;
+      list.push_back(currNode);
+      for(int x:adj[currNode])
+      {
+          if(!vis[x])
+          {
+              dfs(x,adj,vis,list);
+          }
+      }
+  }
+    // Function to return a list containing the DFS traversal of the graph.
+    vector<int> dfsOfGraph(int V, vector<int> adj[]) {
+        int vis[V]={0};
+        vector<int> list;
+        int startNode=0;
+        dfs(startNode,adj,vis,list);
+        return list;
+    }
+};
