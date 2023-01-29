@@ -1,0 +1,40 @@
+
+//Space Complexity : O(n*m)
+//Time Complexity : O(n*m)
+
+class Solution {
+private:
+    void DFS(int row, int col, int oldColor, int newColor, vector<vector<int>>& image, vector<vector<int>>& grid) 
+    {
+        int n=image.size();
+        int m=image[0].size();
+        grid[row][col] = newColor; //got required oldColor => recolor it with newColor
+        
+        int drow[] = {-1,0,+1,0};
+        int dcol[] = {0,+1,0,-1};
+        
+        for(int i=0;i<4;i++)
+        {
+            int newRow = row+drow[i];
+            int newCol = col+dcol[i];
+            
+            //cheking boundry condition && in Image cell having oldColor && in grid cell is not having newColor => means need to recolor it
+            if(newRow>=0 && newRow<n && newCol>=0 && newCol<m && image[newRow][newCol]==oldColor && grid[newRow][newCol]!=newColor)
+            {
+                DFS(newRow,newCol,oldColor,newColor,image,grid);
+            }
+        }
+    }
+    
+public:
+    vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc, int newColor) {
+        // 1) make copy of given matrix then work on copy
+        vector<vector<int>> grid = image;
+        // maintain the old color always
+        int oldColor = image[sr][sc];
+        //2)call firstly DFS on starting pixel
+        DFS(sr,sc,oldColor,newColor,image,grid);
+        //3) return the converted grid
+        return grid;
+    }
+};
