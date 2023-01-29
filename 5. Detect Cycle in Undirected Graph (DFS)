@@ -1,0 +1,47 @@
+
+// Space Complexity : O(N)
+// Time Complexity : O(N+2E) + O(N)
+
+class Solution {
+private:
+    bool DFS(int node,int parent,vector<int> adj[], int visited[]) 
+    {
+        //mark node as visited firstly
+        visited[node]=1;
+        //now check for all its neighbours 
+        for(int x:adj[node])
+        {
+            if(!visited[x]) //neighbour not visited=>call DFS reccursively with updated {currNode,currParent}
+            {
+                if(DFS(x,node,adj,visited)==true)
+                    return true; 
+            }
+            else //else if node is already visited but it is parent then OK
+            {
+                if(x!=parent) // but if neighbour already visited and its not parent==>means got cycle
+                {
+                    return true;
+                }
+            }
+        }
+    }
+  public:
+    // Function to detect cycle in an undirected graph.
+    bool isCycle(int V, vector<int> adj[]) {
+        //visited array
+        int visited[V] = {0};
+        //1) call for each connected component in graph
+        for(int i=0;i<V;i++)
+        {
+            if(!visited[i]) //new startNode from seperate component
+            {
+                //send node with its parent in DFS rec call ==> parent is -1 for startNode
+                if(DFS(i,-1,adj,visited)==true) //any component has cycle that return true=>means entire graph contain the cycle
+                {    
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+};
