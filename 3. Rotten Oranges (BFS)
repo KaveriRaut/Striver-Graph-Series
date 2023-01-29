@@ -1,0 +1,85 @@
+
+
+//space complexity : O(n*m)
+//time complexity : O(n*m)
+
+class Solution 
+{
+    public:
+    //Function to find minimum time required to rot all oranges. 
+    int orangesRotting(vector<vector<int>>& grid) {
+        
+        int n=grid.size();
+        int m=grid[0].size();
+        
+        queue<pair<pair<int,int>,int>> q; 
+        //to store->each cell { {row,col}, time }
+        
+        //1) create visited matrix => to keep track of rotten orange and initial filling of visited matrix
+        int visited[n][m];
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<m;j++)
+            {
+                if(grid[i][j]==2) //if rotten orange=>mark it visited and push in queue
+                {
+                    visited[i][j]=2;
+                    q.push({{i,j},0}); //{ {row,col}, time }
+                }
+                else //if not rotten mark as unvisited
+                {
+                    visited[i][j]=0;
+                }
+            }
+        }
+        
+        int FinalTime=0; //to store final max time to rot all oranges
+        int drow[] = {-1,0,+1,0};
+        int dcol[] = {0,+1,0,-1};
+        //2) now apply BFS logic on queue=>rot all 4 neighbours around the rotten orange
+        while(!q.empty())
+        {
+            int row = q.front().first.first; //{ {row,col}, time }
+            int col = q.front().first.second;
+            int currTime = q.front().second;
+            q.pop(); //pop it *****
+            
+            FinalTime = max(currTime, FinalTime); //to store the final max time to rot all oranges
+            
+            //now checking all 4 neighbours
+            for(int i=0;i<4;i++)
+            {
+                int newRow = row+drow[i];
+                int newCol = col+dcol[i];
+                
+                //if (boundry conditions) && (not visited prior) && (it is fresh orange) 
+                // => then rot it and mark as visited and push into queue
+                if((newRow>=0 && newRow<n) && (newCol>=0 && newCol<m) && (visited[newRow][newCol]!=2) && (grid[newRow][newCol]==1))
+                {
+                    visited[newRow][newCol]=2; //mark as visited and rotten now
+                    q.push({{newRow,newCol},currTime+1}); //push it in queue with time++
+                }                
+            }
+            
+        }
+        
+        //3)to check all given oranges are rotten or not
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<m;j++)
+            {
+                if(visited[i][j]!=2 && grid[i][j]==1) 
+                {
+                    return -1;
+                }
+            }
+        }
+        return FinalTime;
+        
+    }
+};
+
+
+
+
+
