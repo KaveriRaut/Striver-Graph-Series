@@ -1,0 +1,68 @@
+//Space Complexity : O(n*m)
+//Time Complexity : O(n*m)
+
+class Solution {
+  public:
+  //By multisource BFS approach solving //can use DFS as well
+    int numberOfEnclaves(vector<vector<int>> &grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        
+        //1. maintain visited array
+        int visited[n][m] = {0};
+        //2. maintain queue for BFS
+        queue<pair<int,int>> q;
+        //3. traverse the boundry of grid only and push all land node i.e '1' into queue
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<m;j++)
+            {
+                //1st row || last (n-1) row || 1st col || last (m-1) col ==> push into queue and mark as visited
+                if(i==0 || i==n-1 || j==0 || j==m-1)
+                {
+                    if(grid[i][j]==1)
+                    {
+                        q.push({i,j});
+                        visited[i][j]=1;
+                    }
+                }
+            }
+        }
+        int drow[] = {-1,0,+1,0};
+        int dcol[] = {0,+1,0,-1};
+        //4. now start processing nodes from queue according to BFS
+        while(!q.empty())
+        {
+            int row = q.front().first;
+            int col = q.front().second;
+            q.pop();
+            //now check all 4side neighbours to find land '1' to push into queue
+            for(int i=0;i<4;i++)
+            {
+                int newRow = row+drow[i];
+                int newCol = col+dcol[i];
+                //now check valid boundry condition && must be unvisited && must be land
+                if(newRow>=0 && newRow<n && newCol>=0 && newCol<m && !visited[newRow][newCol] && grid[newRow][newCol]==1)
+                {
+                    q.push({newRow,newCol});
+                    visited[newRow][newCol]=1;
+                }
+            }
+        }
+        //5. as till now we mark all land '1' that is able to walf off boundry means can touch boundry
+        //so now have to count the remaining land that is unvisited means cant touch the boundry
+        int count=0;
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<m;j++)
+            {
+                if(grid[i][j]==1 && !visited[i][j] )
+                {
+                    count++;
+                }
+            }
+        }
+        return count; //no. of land '1' that do not touches the boundry
+    }
+};
+
