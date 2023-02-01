@@ -1,0 +1,61 @@
+
+//same as normal BFS traversal
+//Space Complexity : O(N)
+//Time Complexity : O(N)+O(2E)
+
+class Solution {
+private:
+    bool BFS(int node, int visited[], vector<int> adj[])
+    {
+        //mark start node as colored and visited with currColor as 0 given
+        visited[node]=0;
+        //maintain queue for BFS
+        queue<int> q;
+        q.push(node); //initially push with start node
+        //start the BFS for till queue empty
+        while(!q.empty())
+        {
+            int currNode = q.front();
+            q.pop();
+            
+            //now check all neighbours of curr node from adjlist
+            for(int x : adj[currNode]) 
+            {
+                if(visited[x]==-1) //if neighbour is not colored yet => then mark colord with opposite color and push into queue
+                {
+                    visited[x]= !visited[currNode]; //currNode ke opposite color kardo neighbour ko.
+                    q.push(x);
+                }
+                else if(visited[x]==visited[currNode]) //neighbour is colored but with same color as currNode=>then return false as graph is Not Bipartite
+                {
+                    return false;
+                }
+            }
+        }
+        return true; //at last graph is bipartite
+    }
+    
+public:
+	bool isBipartite(int V, vector<int>adj[])
+	{
+	    //visited array to store colors marked
+	    int visited[V];
+	    for(int i=0;i<V;i++)
+	    {
+	        visited[i]=-1;
+	    }
+	    for(int i=0;i<V;i++)
+	    {
+	        if(visited[i]==-1) //if not visited yet=>visit that entire component
+	        {
+	            //initial color is 0 for each start node of seperate component
+	            if(BFS(i,visited,adj)==false) //if any of compoenent is return false=>entire graph should return false as well
+	            {
+	                return false;
+	            }
+	        }
+	    }
+	    return true;
+	}
+
+};
