@@ -1,0 +1,72 @@
+//space : O(V)
+//Time : O(V+E)
+
+class Solution
+{
+  public:
+  //prerequisites is vector of (vector with 2 values) only=>need to store edge as (x.second->x.first)
+    vector<int> findOrder(int V, int m, vector<vector<int>> prerequisites) 
+    {
+        //**************This is additional part to create directed graph from given edges***************//
+	   vector<int> adj[V];
+	   //store the prerequisite task ki pair in directed graph formate
+	   for(auto val:prerequisites)
+	   {
+	      // pair reveresed here [b,a] : so perform (a then b) is edge => in graph store as (a->b)
+            adj[val[1]].push_back(val[0]);  //(x.second->x.first) means (x[1]->x[0])
+	   }
+	   
+	   //------------------------------Kahn's algo Start to find Toposort---------------------------//
+	   //now detect if cycle exist in formed directed graph
+	   //using Kahn's algorithm for Toposort forming condition of DAG
+	   queue<int> q;
+	   int inDegree[V] = {0};
+	   //create inDegree array
+	   for(int i=0;i<V;i++)
+	   {
+	        for(int x:adj[i]) //find neighbours of (i) and increse there indegree
+	        {
+	            inDegree[x]++;
+	        }
+	   }
+	   //now iniitially push nodes with 0 indegree
+	   for(int i=0;i<V;i++)
+	   {
+	       if(inDegree[i]==0)
+	       {
+	           q.push(i);
+	       }
+	   }
+	   //now perform BFS on queue nodes and form toposort
+	   vector<int> toposort_vec;
+	   while(!q.empty())
+	   {
+	       int currNode = q.front();
+	       q.pop();
+	       toposort_vec.push_back(currNode);
+	       //checking neighbours
+	       for(int x:adj[currNode])
+	       {
+	           inDegree[x]--; //decrease indegree of neighbours by 1
+	           if(inDegree[x]==0) //if indegree of any neighbour become 0=>push into q
+	           {
+	               q.push(x);
+	           }
+	       }
+	   }
+	   //-------------------------------------Kahn's END------------------------------------------------//
+	   
+	   
+	   //**********This is additional part to detect Cycle of directed graph and return toposort got*****//
+	   //now we got toposort
+	   if(toposort_vec.size()==V) //all nodes included in toposort=>No cycle=>return toposort
+	   {
+	       return toposort_vec;
+	   }
+	   else //all nodes not included in toposort=>Cycle present=>return empty array as toposrt not possible 
+	   {
+	       return {};
+	   }
+	   
+    }
+};
