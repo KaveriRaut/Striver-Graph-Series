@@ -1,0 +1,58 @@
+
+//Simple DFS Traversal
+//Space Complexity : O(V)
+//Time Complexity : O(V)+O(2E)
+
+class Solution {
+
+  private:
+    bool DFS(int currNode,int visited[], int pathVisited[], vector<int> adj[])
+    {
+        //the currNode (mark as visited && mark as pathVisited) both
+        visited[currNode]=1; 
+        pathVisited[currNode]=1;
+        //now check for all neighbours of currNode from adjlist
+        for(int x:adj[currNode])
+        {
+            //if neighbour is not-visited
+            if(!visited[x]) //if neighbour is not-visited yet=>call DFS on it
+            {
+                if(DFS(x,visited,pathVisited,adj)==true) //if DFS return true=>then return true as well
+                {
+                    return true;
+                }
+            }
+            //else if neighbour is visited but not path visited means-if(visited[x] && !pathVisited[x]) => not a cycle
+            //but else if(neighbour visisted && also pathVisited) means-if(visited[x] && pathVisited[x])=> cycle detected so return true
+            else if(visited[x] && pathVisited[x])
+            {
+                return true;
+            }
+        }
+        //during returning from reccursion call=> mark currNode ka path-unvisited=> (pathVisited[currNode]=0)
+        pathVisited[currNode]=0;
+        return false; //at end if NO CYCLE DETECTED
+    }
+
+  public:
+    // Function to detect cycle in a directed graph.
+    bool isCyclic(int V, vector<int> adj[]) {
+        //1.maintain the visited array
+        int visited[V] = {0};
+        //2.maintain the path visited array (to find cyle in same path)
+        int pathVisited[V] = {0};
+        //3.calling DFS on all connected components 
+        for(int i=0;i<V;i++)
+        {
+            if(!visited[i]) //call DFS on startNode of each component if start node is unvisited
+            {
+                //if any of component has cycle=>means graph itself has cycle so return true
+                if(DFS(i,visited,pathVisited,adj)==true) 
+                {
+                    return true;
+                }
+            }
+        }
+        return false; //no cycle found
+    }
+};
