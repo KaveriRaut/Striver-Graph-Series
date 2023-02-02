@@ -1,0 +1,69 @@
+
+//Space complexity : O(V)
+//Time complexity : O(V+E)
+
+class Solution {
+public:
+	bool isPossible(int V, vector<pair<int, int> >& prerequisites) {
+	   //**************This is additional part to create directed graph from given edges***************//
+	   vector<int> adj[V];
+	   //store the prerequisite task ki pair in directed graph formate
+	   for(pair<int,int> x:prerequisites)
+	   {
+	       adj[x.first].push_back(x.second);  // [a->b] so perform a then b is edge to store in graph
+	   }
+	   
+	   //------------------------------Kahn's algo Start to find Toposort---------------------------//
+	   //now detect if cycle exist in formed directed graph
+	   //using Kahn's algorithm for Toposort forming condition of DAG
+	   queue<int> q;
+	   int inDegree[V] = {0};
+	   //create inDegree array
+	   for(int i=0;i<V;i++)
+	   {
+	        for(int x:adj[i]) //find neighbours of (i) and increse there indegree
+	        {
+	            inDegree[x]++;
+	        }
+	   }
+	   //now iniitially push nodes with 0 indegree
+	   for(int i=0;i<V;i++)
+	   {
+	       if(inDegree[i]==0)
+	       {
+	           q.push(i);
+	       }
+	   }
+	   //now perform BFS on queue nodes and form toposort
+	   vector<int> toposort_vec;
+	   while(!q.empty())
+	   {
+	       int currNode = q.front();
+	       q.pop();
+	       toposort_vec.push_back(currNode);
+	       //checking neighbours
+	       for(int x:adj[currNode])
+	       {
+	           inDegree[x]--; //decrease indegree of neighbours by 1
+	           if(inDegree[x]==0) //if indegree of any neighbour become 0=>push into q
+	           {
+	               q.push(x);
+	           }
+	       }
+	   }
+	   //-------------------------------------Kahn's END------------------------------------------------//
+	   
+	   
+	   //*******************This is additional part to detect Cycle of directed graph*******************//
+	   //now we got toposort
+	   if(toposort_vec.size()==V) //all nodes included in toposort=>No cycle=>print YES tasks can be done
+	   {
+	       return true;
+	   }
+	   else //all nodes not included in toposort=>Cycle present=>print NO means all tasks can not be performed
+	   {
+	       return false;
+	   }
+	   
+	}
+};
