@@ -1,0 +1,51 @@
+
+//Space Complexity : O(V)
+//Time complexity : O(V)+O(E) ->as acyclic directed graph
+
+class Solution
+{
+	public:
+	//Function to return list containing vertices in Topological order. 
+	vector<int> topoSort(int V, vector<int> adj[]) 
+	{
+	    vector<int> vec;
+	    //make indegre array
+	    int inDegree[V] = {0} ;
+	    //traverse the given graph and accordingly fill the inDegree array
+	    for(int i=0;i<V;i++)
+	    {
+	        for(int x:adj[i]) //neighbours of (i)th node
+	        {
+	            inDegree[x]++; //neighbour ki inDegree increase by 1
+	        }
+	    }
+	    
+	    //queue required for BFS
+	    queue<int> q;
+	    //now BFS start with nodes with inDegree 0
+	    for(int i=0;i<V;i++)
+	    {
+	        if(inDegree[i]==0)
+	        {
+	            q.push(i);
+	        }
+	    }
+	    //processing the nodes in queue as per InDegree array
+	    while(!q.empty())
+	    {
+	        int currNode=q.front();
+	        q.pop();
+	        vec.push_back(currNode); //store the currNode into toposort vector
+	        //now check all neighbours of currNode
+	        for(int x:adj[currNode])
+	        {
+	            inDegree[x]--;//now decrement inDegree of all neighbours of currNode by 1
+	            if(inDegree[x]==0) //and if now inDegree become 0=>push it into queue
+	            {
+	                q.push(x);
+	            }
+	        }
+	    }
+	    return vec;
+	}
+};
