@@ -1,0 +1,63 @@
+
+//Using BFS approch (Kahn's Toposort approch)
+//Space : O(V)
+//Time : O(V+E) + O(NlogN) => extra to sort safeNode vector
+
+//Intuition : 1.reverse all edges and apply toposort
+//2.terminal nodes will be indegree 0 nodes
+//3.All directed edges moving from terminal to Safe node in reverse order direction to detect safe Nodes itself.
+//4.the nodes whos all neighbours are are pushed into queue or processed => add to safeNode answer Vector
+
+class Solution {
+  public:
+    vector<int> eventualSafeNodes(int V, vector<int> adj[]) {
+        //1.create the reversed edges graph 
+        //2. also create the inDegree array for reveresed graph
+        int inDegree[V]={0};
+        vector<int> rev_adj[V];
+        
+        for(int i=0;i<V;i++)
+        {
+            //edge before : (i-> x)
+            //edge after : (x-> i) and inDegree[i]++
+            for(auto x:adj[i]) 
+            {
+                rev_adj[x].push_back(i);
+                inDegree[i]++;
+            }
+        }
+        //2.maintain visited array and queue for BFS
+        queue<int> q;
+        int visited[V]={0};
+        //3.initially find terminal nodes=>means nodes with inDegree==0 => push into queue
+        for(int i=0;i<V;i++)
+        {
+            if(inDegree[i]==0)
+            {
+                q.push(i);
+            }
+        }
+        //create vector to store all safe Nodes
+        vector<int> safeVector;
+        //4.now actual procedure for Kahn's toposort algorithm
+        while(!q.empty())
+        {
+            int currNode= q.front();
+            q.pop();
+            safeVector.push_back(currNode);
+            //5.now check for all neighbours
+            for(int x:rev_adj[currNode])
+            {
+                inDegree[x]--; //reduce inDgree of neighbour by 1
+                if(inDegree[x]==0) //if then inDegree become 0=> push it into queue
+                {
+                    q.push(x);
+                }
+            }
+        }
+        //6.sorting the safeNode ka vector to return 
+        sort(safeVector.begin(),safeVector.end());
+        return safeVector;
+    }
+};
+
