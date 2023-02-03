@@ -1,0 +1,74 @@
+
+//Using DFS approch
+//space : O(V)
+//Time : O(V+E)
+
+//terminal nodes => nodes with outdegree 0
+//safe nodes => nodes whos all paths end up in terminal nodes
+
+//Intuition => 1. all nodes involved in cycle or also nodes connected to a cycle => are Not-Safe nodes
+//             2. all other nodes node in cycle or connected to cycle => are Safe Nodes
+// hence using DFS to detect cycle in directed graph => modify it slightly to mark all nodes involved in cycle
+
+class Solution {
+private:
+    bool DFS(int currNode,int visited[],int pathVisited[],vector<int> adj[],int check_is_safe[])
+    {
+        //mark currNode as both (visited && pathVisited)
+        visited[currNode]=1;
+        pathVisited[currNode]=1;
+        //now check for all its neighbours
+        check_is_safe[currNode] = 0 ; //initially all neighbours are Non-Safe
+        for(int x:adj[currNode])
+        {
+            if(!visited[x]) //if neighbour not visited => call DFS on it
+            {
+                if(DFS(x,visited,pathVisited,adj,check_is_safe)==true)
+                {
+                    check_is_safe[currNode] = 0; //NOT Safe => as return true means cycle
+                    //here we keep pathVisited as it is 1=> got NON safe node
+                    return true;//NOT safe node
+                }
+            }
+            else if(visited[x] && pathVisited[x]) //neighbour is both (visited && pathVisited) => cycle forming
+            {
+                check_is_safe[currNode] = 0; //as neighbour is both (visited && pathVisited) => involved in cycle
+                //here we keep pathVisited as it is 1=> got NON safe node
+                return true; //NOT safe node
+            }
+        }
+        //while returning => now got currNode as SAFE node
+        check_is_safe[currNode]=1; //mark node as SAFE NODE
+        pathVisited[currNode]=0; //unvisite the pathVisited => as if we got the Safe node now
+        return false; //got the safe node
+    }
+public:
+    vector<int> eventualSafeNodes(int V, vector<int> adj[]) {
+        //1.maintain visited array 
+        int visited[V] = {0};
+        //2.maintain pathVisited array as well
+        int pathVisited[V] = {0};
+        //to mark node is safe or not safe
+        int check_is_safe[V] = {0}; //0-> Not safe Node //1-> Safe Node
+        //3.create vector to store the Safe Nodes
+        vector<int> safeNode_vec; 
+        //4.now checking for all connected components
+        for(int i=0;i<V;i++)
+        {
+            if(!visited[i]) //startNode not visited means got new compoenent=>call DFS
+            {
+                DFS(i,visited,pathVisited,adj,check_is_safe);
+            }
+        }
+        //5.print the safe nodes (1) from check_is_safe
+        for(int i=0;i<V;i++)
+        {
+            if(check_is_safe[i]==1) //is safe node=>add to vector
+            {
+                safeNode_vec.push_back(i);
+            }
+        }
+        return safeNode_vec;
+    }
+};
+
