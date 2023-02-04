@@ -1,0 +1,83 @@
+
+//Space : O(V)
+//Time : O(V+E)
+//Intuition : 1. compare 2 succesive words of each pair and find the first un-equal letter
+// 2. create the directed edge of this un-equal pair letter (convert in digit)
+// 3. store it in form of directed graph
+// 4. to get the correct ordering of letters apply toposort on that graph
+// 5. at the end store that toposort into string (after converting back to letter) and return that string
+
+class Solution{
+    private:
+    //same function as to find toposort using BFS / Kahn's algorithm
+    vector<int> toposort_func(int V, vector<int> adj[]) 
+	{
+	    vector<int> vec;
+	    //make indegre array
+	    int inDegree[V] = {0} ;
+	    //traverse the given graph and accordingly fill the inDegree array
+	    for(int i=0;i<V;i++)
+	    {
+	        for(int x:adj[i]) //neighbours of (i)th node
+	        {
+	            inDegree[x]++; //neighbour ki inDegree increase by 1
+	        }
+	    }
+	    //queue required for BFS
+	    queue<int> q;
+	    //now BFS start with nodes with inDegree 0
+	    for(int i=0;i<V;i++)
+	    {
+	        if(inDegree[i]==0)
+	        {
+	            q.push(i);
+	        }
+	    }
+	    //processing the nodes in queue as per InDegree array
+	    while(!q.empty())
+	    {
+	        int currNode=q.front();
+	        q.pop();
+	        vec.push_back(currNode); //store the currNode into toposort vector
+	        //now check all neighbours of currNode
+	        for(int x:adj[currNode])
+	        {
+	            inDegree[x]--;//now decrement inDegree of all neighbours of currNode by 1
+	            if(inDegree[x]==0) //and if now inDegree become 0=>push it into queue
+	            {
+	                q.push(x);
+	            }
+	        }
+	    }
+	    return vec;
+	}
+    public:
+    string findOrder(string dict[], int N, int K) {
+        //1.compare pair of word. create directed edge and store in graph
+        vector<int> graph[K];
+        for(int i=0;i<N-1;i++)
+        {
+            string word1 = dict[i];
+            string word2 = dict[i+1];
+            int len = min(word1.length(), word2.length());
+            for(int ptr=0;ptr<len;ptr++)
+            {
+                if(word1[ptr]!=word2[ptr]) //find first un-equal letter and make edge and store in graph
+                {
+                    char letter1 = word1[ptr];
+                    char letter2 = word2[ptr];
+                    graph[letter1-'a'].push_back(letter2-'a'); //convert leeter to digit and then store in graph edge a->b directed
+                    break;
+                }
+            }
+        }
+        //2.calling the toposort on graph created above
+        vector<int> topo=toposort_func(K,graph);
+        string ans="";
+        for(auto x:topo)
+        {
+            ans = ans+char(x+'a'); //convert back to letter
+        }
+        return ans;
+    }
+};
