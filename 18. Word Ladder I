@@ -1,0 +1,53 @@
+
+//Brute force method
+//Space : O(N) => set to store all words
+//Time : O(N * (wordLength*26) * log N) => (all words * (each letter by 'a' to 'z') * set opration)
+
+class Solution {
+public:
+    int wordLadderLength(string startWord, string targetWord, vector<string>& wordList) {
+        //1.store all wrodList into unordered_set
+        unordered_set<string> st;
+        for(int i=0;i<wordList.size();i++)
+        {
+            st.insert(wordList[i]);
+        }
+        //2.queue of pair{word,step} for BFS. Initially store {stratWord,1step}
+        queue<pair<string,int>> q;
+        q.push({startWord,1});
+        st.erase(startWord); //erase the word as visited mark from set if found
+        //3.now BFS on queue
+        while(!q.empty())
+        {
+            string currWord = q.front().first;
+            int steps = q.front().second;
+            q.pop();
+            //here check if word that pop from queue is target word
+            if(currWord==targetWord)
+            {
+                return steps;
+            }
+            //Time : O(N*wordLen*26*logN)
+            //now replace each letter of currWord by each 26 letters
+            for(int i=0;i<currWord.length();i++)
+            {
+                char original_char = currWord[i];
+                for(char ch='a';ch<='z';ch++) //each letter replace by 'a' to 'z'
+                {
+                    currWord[i]=ch;
+                    //now check if the transformed word exists in set or not
+                    //if transformed word exists in set
+                    if(st.find(currWord)!=st.end())
+                    {
+                        st.erase(currWord); //visited hence removing it from set
+                        q.push({currWord,steps+1}); //push this transformed word into queue with step++
+                    }
+                }
+                //place the original character back in currWord
+                currWord[i]=original_char;
+            }
+        }
+        //if dont get the word till end
+        return 0;
+    }
+};
