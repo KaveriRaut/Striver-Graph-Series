@@ -1,0 +1,95 @@
+
+//Space : O(V)
+//Time : O(V+E) + O(V+E) => std toposort + inner loop overall run for all edges
+
+//Intuition : (toposort method is effective on DAG and less time and comparisons taken)
+//1.create toposort of given graph (by DFS or BFS any method) as graph is DAG
+//2.maintain the distance array and initialize with INT_MAX for all nodes but 0 for src node
+//3.take one-one node from toposort and find its neighbour from graph
+//4.for each neighbour find the distance as neighbourDist=(currDist + edge weight)
+//5.if neighbourDist is lesser than actual distance stored in distArray then update the distance array
+//6.at end distArray will contain all shortest distance to each node from src node
+//7.if any node is unreachable replace distance by -1 there
+
+class Solution {
+  private:
+  //reccursive DFS function to find the toposort
+     void DFS_toposort(int currNode, int visited[], stack<int> &st,vector<pair<int,int>> adj[])
+     {
+        //mark currNode as visited
+        visited[currNode]=1;
+        //now check all its neighbours
+        for(auto p:adj[currNode])
+        {
+            int nnode=p.first; //as we need only dest and not edge wight****
+            if(!visited[nnode]) //if neighbours not visited=>call DFS on them as well
+            {
+                DFS_toposort(nnode,visited,st,adj);
+            }
+        }
+        //during return as all DFS calls over, so push currNode into stack
+        st.push(currNode);
+     }
+  public:
+     vector<int> shortestPath(int N,int M, vector<vector<int>>& edges)
+     {
+        //1.create the weighted adjList[] graph with vector of pair(node, edge-weight)
+        vector<pair<int,int>> adj[N];
+        for(int i=0;i<M;i++) //at each index we have vector
+        { 
+            //and each vector has 3 values => src,dest,edge-Wt
+            int src = edges[i][0];
+            int dest = edges[i][1];
+            int wt = edges[i][2];
+            adj[src].push_back({dest,wt}); //(src->{dest,wt}) stored
+        }
+        
+        //2.now find the Toposort of this weighted DAG => require stack,visited arry
+        //for connected components and using rec DFS approch
+        int visited[N] = {0};
+        stack<int> st;
+        for(int i=0;i<N;i++)
+        {
+            if(!visited[i])
+            {
+                DFS_toposort(i,visited,st,adj);
+            }
+        }
+        
+        //3.maintain distance array. 
+        //initialize with INT_MAX for all but put 0 distance for src
+        vector<int> distArr(N,1e9);
+        distArr[0]=0;
+
+        //4.as now we have the toposrt ready in stack st;
+        //remove one-one node from toposort stack and check all its neighbours and store only shortest distance in distArray
+        while(!st.empty())
+        {
+            int currNode = st.top();
+            st.pop();
+            int currDist = distArr[currNode]; //current node ka distance
+            //Time : O(V+E) => overall run for all edges
+            //check all neighbours of this top currNode=>calculate the distace and update distArray if shorter dist found
+            for(auto p:adj[currNode]) //each neighbour is pair of (destNode, edgeWeight)
+            {
+                int dest = p.first;
+                int wt = p.second;
+                int destDist = currDist+wt; //destination node ka distance is sum of (current src Node ka distance + current edge weight)
+                //if destDist is lesser than its prev distance of dest in distArray => then update the distArray with min distance
+                if(destDist < distArr[dest])
+                {
+                    distArr[dest] = destDist;
+                }
+            }
+        }
+        //5.if any node is unreachable replace distance by -1 there
+        for(int i=0;i<N;i++)
+        {
+            if(distArr[i]==1e9)
+            {
+                distArr[i]=-1;
+            }
+        }
+        return distArr;
+     }
+};
