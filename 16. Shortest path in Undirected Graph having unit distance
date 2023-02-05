@@ -1,0 +1,54 @@
+
+//Normal BFS with greedy approach to store only shorted distances in distArray 
+//Space : O(V)+O(V) => for queue and distArray
+//Time : O(V+2E) => for standard BFS for undirected graph
+
+class Solution {
+  public:
+    vector<int> shortestPath(vector<vector<int>>& edges, int N,int M, int src){
+        //1. store the graph in the form of adjList (**it is unit dist graph)
+        vector<int> adj[N]; // all nodes N
+        //adj graph is with 0/1 distance edges (**it is unit dist graph)
+        for(auto vec: edges) //adding all edges M
+        {
+            adj[vec[0]].push_back(vec[1]);
+            adj[vec[1]].push_back(vec[0]);
+        }
+        //2. maintain the distace array (to store shortest dist) instead of visited array
+        vector<int> distArr(N,INT_MAX); //initialize with infinity distance means unreachable
+        //3. maintain queue of pair<node,dist> for BFS 
+        queue<pair<int,int>> q;
+        //4. initially push the src node with distance 0 into queue && also mark 0 it in distArr
+        distArr[src]=0;
+        q.push({src,0});
+        //5. now apply (normal BFS + greedy to store shortest dist)
+        while(!q.empty())
+        {
+            //take out front pair 
+            pair<int,int> p = q.front(); q.pop();
+            //get currNode and currDist from this pair
+            int currNode = p.first;
+            int currDist = p.second;
+            //now check all the neighbours of currNode from adjlist and update the distArr only if found the shorter distance than existing one
+            for(auto neighbour:adj[currNode])
+            {
+                int neighbourDist = currDist+1 ; //neighbour distance will be (currDist+1) as unit graph
+                if(neighbourDist<distArr[neighbour]) //if neighbour ka Distance is less than its distance in distArr
+                {
+                    distArr[neighbour] = neighbourDist; //update the distArr
+                    q.push({neighbour,neighbourDist}); //and push this updates neighbour and its shorter distance into queue
+                }
+            }
+        }
+        //6. got the shortest distances stored in distArray at last
+        //if distance is still infinity to any node=>write there -1 distance
+        for(int i=0;i<N;i++)
+        {
+            if(distArr[i]==INT_MAX)
+            {
+                distArr[i]=-1;
+            }
+        }
+        return distArr;
+    }
+};
