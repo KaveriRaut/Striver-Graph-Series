@@ -1,5 +1,5 @@
 
-//Space : O(N)
+//Space : O(E)+O(N)
 //Time : O(E log(N))
 
 //Algorithm
