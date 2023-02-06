@@ -1,0 +1,75 @@
+
+//Space : O(V)+O(V)+O(E)
+//Time : O(E*Log(N))+O(N)
+//Intuition : (Normal Dijkstras + Store parentArr[]) to backtrack and get the path
+
+class Solution {
+  public:
+    vector<int> shortestPath(int n, int m, vector<vector<int>>& edges) {
+        //0.create adjList for given undirected weighted graph
+        vector<pair<int,int>> adj[n+1]; //src -> [desti,edgeWT]
+        for(auto vec:edges) // vec[0]->vec[1],vec[2]
+        {                  //src -> [desti,edgeWT]
+            adj[vec[0]].push_back({vec[1],vec[2]});
+            adj[vec[1]].push_back({vec[0],vec[2]});
+        }
+        //1.maintain the min-Heap priority queue to store pair<dist,node>
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>>pq;
+        //2.maintain parent array and initialize same as index
+        vector<int> parent(n+1);
+        for(int i=1;i<n+1;i++)
+        {
+            parent[i]=i;
+        }
+        //3.maintain the distArr[], initilize with 1e9; and 0 for srcNode=1 here
+        vector<int> distArr(n+1, 1e9);
+        distArr[1]=0;
+        //4.push {dist=0,src=1} into pq initilly
+        pq.push({0,1});
+        //5.now iterating on pq
+        while(!pq.empty())
+        {
+            //take first min-dist pair from pq=> pair<dist,node>
+            int currNode = pq.top().second;
+            int currDist = pq.top().first;
+            pq.pop();
+            //now check all the neighbours of currNode
+            for(auto it:adj[currNode]) //in adjList we have=> src->{desti,edgeWT}
+            {
+                int desti = it.first;
+                int edgeWT = it.second;
+                int newCalcDist = currDist + edgeWT;
+                //check for min-dist find 
+                if(newCalcDist < distArr[desti])
+                {
+                    //update the distArr by min-dist
+                    distArr[desti] = newCalcDist;
+                    //push this new min-dist pair in pq
+                    pq.push({newCalcDist,desti});
+                    //update the parent 
+                    parent[desti] = currNode;
+                }
+            }
+        }
+        //6.if targetNode is unReachable=>return only{-1
+        if(distArr[n]==1e9)
+        {
+            return {-1};
+        }
+        //6.maintain the ans_vec to store the actual shortest path
+        vector<int> ans_vec;
+        //7.everything is ready now means parentArray and distArr for shortest path
+        //traverse the from last target node and backtrack using parent and add it to ans vector
+        int node=n; //targetNode
+        while(parent[node]!=node) //when we reach src node this condition become true
+        {
+            ans_vec.push_back(node);
+            node=parent[node]; //backtrack using its parent
+        }
+        //8.now add the srcNode explicitly
+        ans_vec.push_back(1);
+        //9.reverse the path to get correct ordering from src to target node
+        reverse(ans_vec.begin(), ans_vec.end());
+        return ans_vec;
+    }
+};
