@@ -1,0 +1,61 @@
+
+//Space : O(N)
+//Time : O(E log(N))
+
+//Algorithm
+//1.maintain priority queue as min heap
+//2.maintain distance array to store shortest distances
+//3.initially push ({dist=0,srcNode}) into priority queue; and mark dist[src]=0;
+//4.while(priQ not empty)
+//  1.pop currNode=>which is obviously smallest distance
+//  2.check all its neighbours
+//  3.if (currDist+edgeWeight is less than prev dist[] to neighbour) then
+//      update the dist[] array
+//      push this new neighbour with smaller distance into priority queue
+//5.at the end dist[] array will give shortest dist to each node from src
+
+class Solution
+{
+	public:
+	//Function to find the shortest distance of all the vertices
+    //from the source vertex S.
+    vector <int> dijkstra(int V, vector<vector<int>> adj[], int src)
+    {
+        //1.maintain priority queue as min heap for " pair<dist,node> "
+        //syntax=>priority_queue<int, vector<int>, greater<int> > gq)
+        priority_queue <pair<int,int>,vector<pair<int,int>>, greater<pair<int,int>>> pq ;
+        //2.maintain distance array to store shortest distances
+        vector<int> distArr(V); //initialize with 1e9
+        for(int i=0;i<V;i++)
+        {
+            distArr[i]=1e9;
+        }
+        //3.initially push ({dist=0,srcNode})into priority queue; and mark dist[src]=0;
+        distArr[src]=0;
+        pq.push({0,src});
+        //now processing the prio_queue
+        while(!pq.empty())
+        {
+            //take the front min-dist guy from priQ
+            int currDist = pq.top().first;
+            int currNode = pq.top().second;
+            pq.pop();
+            //check all neighbours of currNode => adjList store the "(src->{desti,edgeWeight})"
+            for(auto nVec:adj[currNode]) // (src->{desti,edgeWeight})
+            {
+                int neighbourNode = nVec[0];
+                int neighbourDist = nVec[1];
+                int calDist = currDist+neighbourDist;
+                //now check which dist is min to reach neighbour=>and update if min-dist exist
+                if(calDist < distArr[neighbourNode])
+                {
+                    distArr[neighbourNode] = calDist; //update the dist[] with min-dist got
+                    pq.push({calDist,neighbourNode}); //push this min-dist pair into pq
+                }
+            }
+        }
+        return distArr;
+    }
+};
+
+
