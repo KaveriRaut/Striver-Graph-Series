@@ -1,0 +1,57 @@
+
+//Space : O(N)
+//Time : O(E log(N))
+
+//Algorithm
+//1.maintain ordered set of pair<dist,node> => so it by default maintain in ascending order pair by dist
+//2.maintain distArr=>initialize with infinity
+//3.initially push {0,srcNode} into set and mark 0 as distArr[srcNode]
+//4.now iterate onver the set=>each time pop the topmost pair (eventually it is with min-dist)
+//5.check all its neighbours
+//6.if (currDist+edgeWt) is lesser than previous (distArr[neighbour]) => 
+// then erase the all pairs which exists && reachable going to same neighbour from set ***(extra step in set approach to reduce the extra pairs)
+//      update the distArr with min-dist found
+//      and now store the new pair of {min-dist found, neighbour} into set
+//7.return the distArr which contain the shortest distances
+
+class Solution
+{
+	public:
+	//Function to find the shortest distance of all the vertices from the source vertex src
+    vector <int> dijkstra(int V, vector<vector<int>> adj[], int src)
+    {
+        //maintain ordered set of pair<dist,node>
+        set<pair<int,int>> s; //pair<dist,node>
+        //maintain distArr=>initialize with infinity
+        vector<int> distArr(V,1e9);
+        //initially push {0,srcNode} into set and mark 0 as distArr[srcNode]
+        s.insert({0,src});
+        distArr[src]=0;
+        //now iterate onver the set=>each time pop the topmost pair
+        while(!s.empty())
+        {
+            auto ptr = *(s.begin());//ptr is to (pair<dist,node>) ****V.V.IMP
+            int currNode = ptr.second;
+            int currDist = ptr.first;
+            s.erase(ptr);
+            //check aall its neighbours of currNode
+            for(auto it:adj[currNode]) //adjList stores => src->{desti,edgeWT)
+            {
+                int desti = it[0];
+                int edgeWT = it[1];
+                int newCalcDist = currDist+edgeWT;
+                if(newCalcDist < distArr[desti])
+                {
+                    if(distArr[desti]!=1e9) //ensure desti is reachable and not min-dist pair => so erase it from set
+                    {
+                        s.erase({distArr[desti],desti});
+                    }
+                    distArr[desti]=newCalcDist;
+                    s.insert({newCalcDist,desti});
+                }
+            }
+        }
+        return distArr;
+    }
+};
+
