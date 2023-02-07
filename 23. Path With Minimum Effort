@@ -1,0 +1,67 @@
+
+//Space : O(n*m) 
+//Time : O(E logN) => O( (4*N*M) * log(N*M) )
+//Algorithm => dijkstras algorithm with additional condition of storing effort
+//  priority Queue store => pair< currEffort, <row,col>>
+//  distMatrix store => only the min of efforts that got from pq pairs
+//  ==>for 4 neighbours
+//  int heightDiff = abs(currNode.height - neighbour.height)
+//  int newEfforts = max(heightDiff, currEffort)) 
+//  if(newEffort < distMat[neighbour]) //means newEfforts are less than previous effort fron distMatrix then update the matrix
+//  then update the distMatrix and push the new effort with neghibour node into pq
+
+class Solution {
+  public:
+    int MinimumEffort(vector<vector<int>>& heights) {
+        int n=heights.size();
+        int m=heights[0].size();
+        //priority queue of min-heap => store <pair<int,pair<int,int>> => {currEffort, {row,col}}
+        priority_queue<pair<int,pair<int,int>>, vector<pair<int,pair<int,int>>>, greater<pair<int,pair<int,int>>>> pq;
+        //distMatrix 
+        vector<vector<int>> distMat (n, vector<int>(m, 1e9)); //initialize ditMatrix with 1e9
+        //initially push src{0,0} with effort=0 into pq //also put 0 at src in ditMatrix
+        pq.push({0,{0,0}});
+        distMat[0][0]=0;
+        //now take top pair with min-effort and process
+        int drow[] = {-1,0,+1,0};
+        int dcol[] = {0,+1,0,-1};
+        while(!pq.empty()) //{currEffort, {row,col}}
+        {
+            auto it = pq.top();
+            pq.pop();
+            int currEffort = it.first;
+            int currRow = it.second.first;
+            int currCol = it.second.second;
+            
+            //at any point if the pop pair from pq is destination=>just return its own currEfforts
+            if(currRow==n-1 && currCol==m-1)
+            {
+                return currEffort;
+            }
+            
+            //now check all 4 neighbours
+            for(int i=0;i<4;i++)
+            {
+                int newRow = currRow+drow[i];
+                int newCol = currCol+dcol[i];
+                //check boundry cases
+                if(newRow>=0 && newRow<n && newCol>=0 && newCol<m)
+                {
+                    //find diff in heights first
+                    int heightDiff = abs( heights[currRow][currCol] - heights[newRow][newCol] );
+                    //now decide the max diff in heights means max of currEfforts and height diff found currently 
+                    int newEffort = max(currEffort, heightDiff);
+                    //newEfforts are less than previous effort fron distMatrix then update the matrix
+                    if(newEffort < distMat[newRow][newCol]) 
+                    {
+                        //update distMatrix with new min-Effort value
+                        distMat[newRow][newCol] = newEffort;
+                        //also push this new pair into pq
+                        pq.push({newEffort, {newRow, newCol}});
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+};
