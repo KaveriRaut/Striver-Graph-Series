@@ -1,0 +1,64 @@
+
+//Space : O(n*m)
+//Time : O(4*n*m)
+//Intuition : apply normal Dijkstras algorithm using noremal Queue and maintain dist_matrix
+//            and check for 4 direction neighbours & move only if cell has '1' and has min-dist than previous 
+//            then update the dist_matrix and push (newMin,neighbour) in queue
+
+
+class Solution {
+  public:
+    int shortestPath(vector<vector<int>> &grid, pair<int, int> src,pair<int, int> targetNode) 
+    {
+        //edge case=> if srcNode is only the required destiNode
+        if(src.first==targetNode.first && src.second==targetNode.second)
+        {
+            return 0;
+        }
+        
+        int n=grid.size();
+        int m=grid[0].size();
+        //maintain the dist_matrix
+        vector<vector<int>> distMat(n, vector<int>(m,1e9)); //initialize with 1e9
+        //maintain the queue to store ( pair<dist,<row,col>> )
+        queue<pair<int, pair<int,int>>> q; //{dist, {row,col} }
+        //initilize all things
+        q.push({0, {src.first, src.second}}); //push cordinates of srcNode with dist=0
+        distMat[src.first][src.second]=0; //mark dist of src as 0 in distMatrix
+        //now processing one-one pair from queue as per Dijkstras algorithm
+        while(!q.empty())
+        { 
+            //automatically get the min-dist pair at front due to unit distance in cells
+            //take out the first min-dist pair //pair => {dist, {row,col} }
+            int currDist = q.front().first;
+            int currRow = q.front().second.first;
+            int currCol = q.front().second.second;
+            q.pop();
+            //now check all its 4 neighbours
+            int drow[] = {-1,0,+1,0};
+            int dcol[] = {0,+1,0,-1};
+            for(int i=0;i<4;i++)
+            {
+                int newRow = currRow+drow[i];
+                int newCol = currCol+dcol[i];
+                int newDist = currDist+1 ;
+                //now checking all appropriate conditions
+                //if ( {indexes are not out of boundry} && {neighbour cell has '1'} && {new dist found < previous dist in matrix})
+                if( newRow>=0 && newRow<n && newCol>=0 && newCol<m && grid[newRow][newCol]==1 && (newDist<distMat[newRow][newCol]))
+                {
+                    //update the distMatrix with new min Dist
+                    distMat[newRow][newCol] = newDist;
+                    //if we got the neighbour pair which is target node=>return newDist here only
+                    if(newRow == targetNode.first && newCol == targetNode.second) //got the targetNode
+                    {
+                        return newDist;
+                    }
+                    //push this new pair into queue
+                    q.push({newDist, {newRow,newCol}});
+                }
+            }
+        }
+        //at end if we cant reach targetNode
+        return -1;
+    }
+};
