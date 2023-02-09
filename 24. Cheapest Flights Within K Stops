@@ -1,0 +1,62 @@
+
+//Space : O(N)+O(V*E)  => for queue+for storing hte graph
+//Time : O(E) => as used only normal queue in Dijkstras algo
+//Intuition : store the data interms of graph first
+//using normal Dijkstras Algo + keeping (no. of stops) condition in mind algo with min-cost condition
+
+class Solution {
+  public:
+    int CheapestFLight(int n, vector<vector<int>>& flights, int src, int desti, int K)  
+    {
+        //1.creating the weighted directed graph for given data=>as adj list (src=>{desti,edgeWT})
+        //given is: vector<vector<int>>flights => [ [src,desti,cost] ]
+        vector<pair<int,int>> adj[n]; // [src]->{desti,edgeWT}
+        
+        for(auto it:flights) //flights => [ [src,desti,cost] ]
+        {
+            adj[it[0]].push_back({it[1],it[2]});// [src]->{desti,edgeWT}
+        }
+        
+        //2.maintain a queue to store  pair<no.stops,pair<node,Cost>>
+        queue<pair<int,pair<int,int>>> q; //pair<no.stops,pair<node,Cost>>
+        //3.maintain distArr to store the min-dist means min-cost
+        vector<int> distArr(n,1e9); //initialize with infinity dist
+        //4.initialize the given src flight
+        distArr[src]=0;
+        q.push({0,{src,0}}); //q.push(<no.stops=0,pair<nods=src,Cost=0>>)
+        //5.now apply modified dijkstras on queue
+        while(!q.empty())
+        {
+            //take out the front min-stop pair from queue
+            auto it=q.front();
+            q.pop();
+            int currStops = it.first;
+            int currNode = it.second.first;
+            int currCost = it.second.second;
+            //check for (no. of Stops) condition first
+            if(currStops > K)
+            {
+                continue; //if no. of stops exceeds than given K => just skip remaining processing
+            }
+            //else //checking all the neighbours of currNode
+            for(auto x:adj[currNode])// [src]->{desti,edgeWT}
+            {
+                int adjNode = x.first;
+                int edgeCost = x.second;
+                int newCost = currCost+edgeCost;
+                //now check both conditions (new min-cost && no.of stops condition)
+                if(newCost < distArr[adjNode] && currStops<=K) //*****VVVIMP condition
+                {
+                    distArr[adjNode] = newCost; //distArr stores the cost means dist between 2 stops
+                    q.push({currStops+1,{adjNode,newCost}});//updated pair of adjNode push into queue 
+                }
+            }
+        }
+        //6.at end check for the destination reachable with condition satisfied
+        if(distArr[desti]==1e9)
+        {
+            return -1; //if desti is unreachable
+        }
+        return distArr[desti];
+    }
+};
