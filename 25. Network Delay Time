@@ -1,0 +1,59 @@
+//Time : O(E*logN) => typical Dijstras algorithm using priority queue
+//Space : O(N*E)+O(E) => for creating&storing graph + for priorityQue
+//Intuition : Normal dijstras algorithm to get min-time which is actually distance(or edgeWT) between 2nodes which store the min-dist between nodes means min-time in nodes
+// at end just traverse distArr to find max-time stored their from all the min-times so that will be over min-time to reach all the 'nodes'
+
+class Solution {
+public:
+////V.V.IMP ==> note that here nodes no. from (1 to n) so declare graph for [n+1] size and distArr[n+1] size
+    int networkDelayTime(vector<vector<int>>& times, int n, int src) {
+        //1.create the directed weighted graph as adjList 
+        vector<pair<int,int>> adj[n+1]; //store src->pair<node,edgeWT>
+        for(auto it:times) // [src, desti, wt]
+        {
+            adj[it[0]].push_back({it[1],it[2]}); //[src].push_back({desti,edgeWT})
+        }
+        //2.maintain the priority queue as Min-Heap to get min-time pair at front
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>>pq; //to store like pair<time,pair<node,edgeWT>>
+        //3.maintain the distArr to store the min time to reach each node
+        vector<int> distArr (n+1,1e9); //initially dist is 1e9 unreachable
+        //4.initialize both pq and distArr for srcNode
+        distArr[src]=0;
+        pq.push({0,src}); //<time,pair<node,edgeWT>>
+        //5.now applying the dijkstras logic on queue guys
+        while(!pq.empty())
+        {
+            //take the front guy from pq as of min-time
+            auto it = pq.top();//<time,node>
+            pq.pop();
+            int currTime = it.first;
+            int currNode = it.second;
+            //checking all its neighbours
+            for(auto it2:adj[currNode]) //// [src] --> {desti,edgeWT} 
+            {
+                int Neighbour = it2.first;
+                int neighbour_edgeWT = it2.second;
+                int newTime_To_Neighbour = currTime + neighbour_edgeWT;
+                //condition to check new min-time as edgeWT 
+                //if newTime to reach neighbour is lesser than its previous time from distArr to reach 
+                // =>modify the distArr with new min-Time and push new pair in pq
+                if(newTime_To_Neighbour < distArr[Neighbour]) 
+                {
+                    distArr[Neighbour] = newTime_To_Neighbour;
+                    pq.push({newTime_To_Neighbour,Neighbour});  ////<newTime,node>
+                }
+            }
+        }
+        //6.at end check if any node is unreachable then return -1; else if all nodes reachable return the max time from all distArr[i]
+        int maxiTime=INT_MIN;
+        for(int i=1;i<n+1;i++)
+        {
+            if(distArr[i]==1e9)
+            {
+                return -1;
+            }
+            maxiTime = max(maxiTime,distArr[i]);
+        }
+        return maxiTime;
+    }
+};
