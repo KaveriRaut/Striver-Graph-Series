@@ -1,0 +1,62 @@
+
+//space : O(V)+O(E) ==> for all vertices in distArr & waysArr + all edges in priority queue
+//Time : O(E logV) ==> std Dijkstras using priority queue
+//Intuition : Normal Dijkstras algorithm only use extra waysArr[] to maintain the ways to arrive at each node
+// if(we are visiting node for 1st time with min-dist) => {assign same no. of ways to reach its parent here}
+// else if (we visite node again with same min-dist) => {now add the ways to reach parent in current its ways}
+
+
+class Solution {
+  public:
+    int countPaths(int n, vector<vector<int>>& roads) {
+        //1. create the undirected weighted graph
+        vector<pair<int,int>> adj[n]; //store [src]->{desti,edgeWT}
+        for(auto it:roads) //undirected weighted graph
+        {
+            adj[it[0]].push_back({it[1],it[2]});
+            adj[it[1]].push_back({it[0],it[2]});
+        }
+        //2.maintain the priority queue to store pair{dist,node}
+        priority_queue<pair<int,int>,vector<pair<int,int>>, greater<pair<int,int>>> pq;
+        //3.maintain the distArr[] to store minimum distances
+        vector<int> distArr(n,1e9); //initilize with 1e9
+        //4.maintain the waysArr[] to store the ways of arrival of each node
+        vector<int> waysArr(n,0); //initilize with 0
+        //5.initile configuration for src=0
+        int src=0;
+        distArr[src]=0; //initial dist of src = 0
+        waysArr[src]=1; //initially 1 way to reach src *********IMP
+        pq.push({0,src}); //{0 dist, src node} into pq
+        //6.now applying the normal dijkstras algorithm
+        while(!pq.empty())
+        {
+            //take out first min-dist pair from pq
+            auto it1=pq.top(); //pair{dist,node}
+            pq.pop();
+            int currDist = it1.first;
+            int currNode = it1.second;
+            //now check its all neighbours for min-dist and to calculate no. of ways to reach at node
+            for(auto it:adj[currNode]) //store [src]->{desti,edgeWT}
+            {
+                int neighbour = it.first;
+                int edgeWT = it.second;
+                int newMinDist = currDist+edgeWT;
+                //if we coming with the min-dist for 1st time to this node=>assign ways[parent] to it & update all distArr,waysArr,pq
+                if(newMinDist < distArr[neighbour])
+                {
+                    distArr[neighbour] = newMinDist;
+                    pq.push({newMinDist,neighbour});
+                    waysArr[neighbour] = waysArr[currNode]; //currNode is parent node
+                }
+                //if we already reached with min-dist before=>add parent ways to existing neighbour ke ways me=>only update waysArr[]
+                else if(newMinDist == distArr[neighbour]) 
+                {
+                    waysArr[neighbour] = waysArr[neighbour]+waysArr[currNode]; //currNode is parent node
+                }
+            }
+        }
+        int mod=7+1e9;
+        //7.at the end return the total ways to reach the destination node i.e. [n-1]th node
+        return waysArr[n-1]%mod;
+    }
+};
