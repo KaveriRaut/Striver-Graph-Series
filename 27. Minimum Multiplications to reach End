@@ -1,0 +1,48 @@
+
+//Space : O(N) => for queue
+//Time : O(E) => we use only normal queue here
+//Intuition : Dijkstras algorihtm logic to find min-Steos associated with each multiplication
+
+class Solution {
+  public:
+    int minimumMultiplications(vector<int>& arr, int start, int end) {
+        int mod = 100000;
+        //No need to create the graph as we want to multiply always by arr[] elements
+        //1.maintain the normal queue to store the pair <steps,node> 
+        //  =>No need of priority queue as steps increases by 1 always so queue always gives min-steps pair automatically
+        queue<pair<int,int>> q; //pair <steps,node>
+        //2.maintain the distArr[100000] this size as at max will have 9999 nodes
+        vector<int> distArr(100000, 1e9); //initilize with 1e9
+        //3.initially setup for start node
+        distArr[start] = 0; //0 steps for start node 
+        q.push({0,start}); //{0 steps, startNode}
+        //4.apply dijkstras algorithm for queue
+        while(!q.empty()) // queue storing //pair <steps,node>
+        {
+            //take out the first guy with min-steps
+            int currSteps = q.front().first;
+            int currNode = q.front().second;
+            q.pop();
+            //now multiply currNode with each of elements from given arr[] => so new nodes will created
+            for(auto it:arr)
+            {
+                int newNode = (currNode*it)%mod; //num got after multiply treat as newNode
+                int newSteps = currSteps+1; //new required step increase by 1 in currSteps
+                //if newSteps are less than previous steps to reach newNode =>
+                //then push this newNode into queue with {newSteps and newNode} and update the distArr
+                if(newSteps < distArr[newNode])
+                {
+                    distArr[newNode] = newSteps;
+                    q.push({newSteps, newNode}); 
+                    //but if you got the end node here only => return the newSteps directly
+                    if(newNode==end)
+                    {
+                        return newSteps;
+                    }
+                }
+            }
+        }
+        //5.till end we dont got the end number=>so return -1;
+        return -1;
+    }
+};
