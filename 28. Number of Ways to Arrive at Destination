@@ -1,11 +1,10 @@
 
+
 //space : O(V)+O(E) ==> for all vertices in distArr & waysArr + all edges in priority queue
 //Time : O(E logV) ==> std Dijkstras using priority queue
 //Intuition : Normal Dijkstras algorithm only use extra waysArr[] to maintain the ways to arrive at each node
 // if(we are visiting node for 1st time with min-dist) => {assign same no. of ways to reach its parent here}
 // else if (we visite node again with same min-dist) => {now add the ways to reach parent in current its ways}
-
-
 class Solution {
   public:
     int countPaths(int n, vector<vector<int>>& roads) {
@@ -28,6 +27,7 @@ class Solution {
         waysArr[src]=1; //initially 1 way to reach src *********IMP
         pq.push({0,src}); //{0 dist, src node} into pq
         //6.now applying the normal dijkstras algorithm
+        int mod=7+1e9;
         while(!pq.empty())
         {
             //take out first min-dist pair from pq
@@ -51,11 +51,10 @@ class Solution {
                 //if we already reached with min-dist before=>add parent ways to existing neighbour ke ways me=>only update waysArr[]
                 else if(newMinDist == distArr[neighbour]) 
                 {
-                    waysArr[neighbour] = waysArr[neighbour]+waysArr[currNode]; //currNode is parent node
+                    waysArr[neighbour] = (waysArr[neighbour]+waysArr[currNode])%mod; //currNode is parent node
                 }
             }
         }
-        int mod=7+1e9;
         //7.at the end return the total ways to reach the destination node i.e. [n-1]th node
         return waysArr[n-1]%mod;
     }
