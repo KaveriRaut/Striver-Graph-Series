@@ -1,0 +1,60 @@
+
+//Space : O(V) => for priority queue
+//Time : O(E logV) => normal Dijkstras algorithm
+//Intuition : using normal Dijkstras algorithm to find min-distancce means money,
+//            only store the {money,node} in priority queue to get min-money pair first
+
+class Solution {
+  public:
+  //note that nodes numbered from 1 to n=>create graph for (n+1) nodes && k=src node here
+    int minimumCost(vector<vector<int>>& flights, int n, int k) 
+    {
+        //1.Creating the directed weighted graph of(n+1) nodes as adjlist
+        vector<pair<int,int>> adj[n+1]; // [src]->{desti,edgeWT}
+        //store the data into adj graph
+        for(auto it:flights) // flights[i] = (src, desti. edgeWT) 
+        {
+            adj[it[0]].push_back({it[1],it[2]}); //[src]->{desti,edgeWT}
+        }
+        //2.maintain the priority queue as min-Heap to store pair<money,node>
+        priority_queue <pair<int,int>,vector<pair<int,int>>, greater<pair<int,int>>> pq;
+        //3. maintain the distArr(n+1) size to store the min-dist means min-money to travel each city
+        vector<int> distArr(n+1,1e9); //initialize with max-distance 1e9
+        //4.initialize the distArr and pq with srcNode entry
+        int src=k;
+        distArr[src]=0;
+        pq.push({0,src});
+        //5.now apply normal Dijkstras on pq nodes
+        while(!pq.empty())
+        {
+            //take the front guy with min-money/dist value //pair<money,node>
+            int currMoney = pq.top().first;
+            int currNode = pq.top().second;
+            pq.pop();
+            //check all the neighbours of currNode from adjlist
+            for(auto it:adj[currNode])//[src]->{desti,edgeWT}
+            {
+                int neighbour = it.first;
+                int edgeWT = it.second;
+                int newMoney = currMoney + edgeWT;
+                //checking the min-dist means min-money condition before updating
+                if(newMoney < distArr[neighbour])
+                {
+                    distArr[neighbour] = newMoney;
+                    pq.push({newMoney, neighbour});
+                }
+            }
+        }
+        //6.checking distArr[] if all cities are reachable or not=>for nodes (1 to n)
+        int final_Money=INT_MIN;
+        for(int i=1;i<n+1;i++)
+        {
+            if(distArr[i]==1e9) //anyone city unreachable return -1 
+            {
+                return -1;
+            }
+            final_Money = max(distArr[i],final_Money);
+        }
+        return final_Money;
+    }
+};
