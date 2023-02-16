@@ -1,0 +1,68 @@
+
+//Time : O(V^3) -> 3 nested loops
+//Space : O(V^2) -> for matrix
+//Advantage of Floyd Warshall -> multiSource shortest path + To detect negative cycles 
+
+
+class Solution {
+
+  public:
+  
+	void shortest_distance(vector<vector<int>>&matrix)
+	{
+	   //1.total no. of nodes
+	   int n = matrix.size();
+	   
+	   //2.modify the given matrix as per our setup requirement
+	   for(int i=0;i<n;i++)
+	   {
+	       for(int j=0;j<n;j++)
+	       {
+	           if(matrix[i][j]==-1)
+	           {
+	               matrix[i][j]=1e9; //unreachable so put 1e9 instead of -1
+	           }
+	           if(i==j)
+	           {
+	               matrix[i][j] = 0; //diagonal elements put dist=0 
+	           }
+	       }
+	   }
+	   
+	   //3.actual Floyd Warshall algorithm => via k for matrix[i][j]=matrix[i][k]+matrix[k][j]
+	   for(int k=0;k<n;k++) //'via k' path to check for each node
+	   {
+	       for(int i=0;i<n;i++)
+	       {
+	           for(int j=0;j<n;j++)
+	           {
+	               matrix[i][j] = min(matrix[i][j], (matrix[i][k]+matrix[k][j]));
+	           }
+	       }
+	   }
+	   
+	   //4.if we want to detect the negative cycles if exists
+	   //check only diagonal self dist pair=> if their dist is less 0 means neg_cycle exist
+	   //for(int i=0;i<n;i++)
+	   //{
+	   //    if(matrix[i][i]<0)
+	   //    {
+	   //        cout<<"Got the negative cycle";
+	   //    }
+	   //}
+	   
+	   //4.modifying the matrix back to original formate of -1 as unreachable
+	   for(int i=0;i<n;i++)
+	   {
+	       for(int j=0;j<n;j++)
+	       {
+	           if(matrix[i][j]==1e9)
+	           {
+	               matrix[i][j]=-1; //unreachable so put 1e9 instead of -1
+	           }
+	       }
+	   }
+	   
+	}
+};
+
