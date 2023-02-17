@@ -1,0 +1,60 @@
+
+//Time : O(E*log(E))
+//Space : O(E+V)
+//Algorithm : Prims algorithm to find the MST weight
+//Required to find only value of min-weight of MST and not to create the MST itself hence NO need to store the parents
+
+class Solution
+{
+	public:
+	//Function to find sum of weights of edges of the Minimum Spanning Tree.
+    int spanningTree(int n, vector<vector<int>> adj[])
+    {
+        //1.maintain the visited arr
+        vector<int> visArr(n,0);
+        
+        //2.maintain the priority queue as min-heap to store the pair<weight,node>
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>>pq;
+        
+        //3.declare variable to store the MST min-weight
+        int mst_sum = 0;
+        
+        //4.initial setup for src nodes in pq push only && (((dont mark as visited before or after we push node into pq)))
+        pq.push({0,0}); //pair{wt=0,node=0}
+        
+        //5.now applying the prims on queue
+        while(!pq.empty())
+        {
+            //take out the top min-wt pair top from min-heap pq and pop it
+            auto it = pq.top(); //pair<weight,node>
+            pq.pop();
+            
+            //now means we have {currWT, currNode}
+            int currNode = it.second;
+            int currWT = it.first;
+            
+            //if this currNode popped out is already visited => skip all further process
+            if(visArr[currNode]==1)
+            {
+                continue;
+            }
+            //if after poping from queue currNode is not mark as visited => now mark it as visited and do further process of prims
+            visArr[currNode] = 1;
+            mst_sum = mst_sum+currWT; //add currWT to mst_sum 
+            
+            //check all neighbours of currNode => if they are not visited then only push into pq
+            for(auto it:adj[currNode]) //[src] -> [desti,weight]
+            {
+                int neighbour = it[0];
+                int edgeWT = it[1];
+                if(visArr[neighbour]==0) //if neighbour is not visited then only push it into pq
+                {
+                    pq.push({edgeWT, neighbour});
+                }
+            }
+        }
+        
+        //as need to return the mst_sum of final MST
+        return mst_sum;
+    }
+};
