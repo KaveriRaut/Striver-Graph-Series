@@ -1,0 +1,64 @@
+
+
+//Time : O(V^3)
+//Space : O(V^2)
+//Intuition : use the floyd warshall algorithm to create multisorce shortest path matrix
+//now traversing matrix for each city => check to how many other cities it reaches with (dist < threshold)
+//keep track of this count so that at last store the city with minimum count
+
+//OR we can also solve by Dijkstras algorithm=>apply for each node as source and create shortest path matrix
+//then apply same steps on that matrix 
+
+class Solution {
+  public:
+    int findCity(int n, int m, vector<vector<int>>& edges,int ThreshHold_distance) 
+    {
+        //1.initially creating the directed weighted graph as adjMatrix formate
+        vector<vector<int>> matrix(n,vector<int>(n,1e9));
+        for(auto it:edges)
+        {
+            matrix[it[0]][it[1]] = it[2];
+            matrix[it[1]][it[0]] = it[2];
+        }
+        for(int i=0;i<n;i++)
+        {
+            matrix[i][i]=0;
+        }
+        //2.apply Floyd warshall on newly created matrix of shortest distance  //O(V^3)
+        for(int k=0;k<n;k++) //paths via k
+        {
+            for(int i=0;i<n;i++)
+            {
+                for(int j=0;j<n;j++)
+                {
+                    if(matrix[i][k]!=1e9 && matrix[k][j]!=1e9)
+                    {
+                        matrix[i][j] = min(matrix[i][j], (matrix[i][k]+matrix[k][j]));
+                    }
+                }
+            }
+        }
+        //3.now iterate on this matrix to count the min-cities reachable under thresh-hold=>finding that min- src city
+        int ans_city=-1;
+        int min_city_count=n;  //initially take n (any greater no.) as required city
+        for(int city=0;city<n;city++) //for each city
+        {
+            int curr_count=0;
+            for(int adjCity=0;adjCity<n;adjCity++) //corresponding adjCity traversing
+            {
+                if(matrix[city][adjCity]<=ThreshHold_distance) //if adjCity is reachable and under threshold
+                {
+                    curr_count++; //count them
+                }
+            }
+            if(curr_count<=min_city_count) //found some city with min-reachable cities under threshold=>update the ans_city
+            {
+                ans_city = city;
+                min_city_count = curr_count;
+            }
+        }
+        
+        //4. we got the city who has minimum no. of citites that reachble under the threshhold distance
+        return ans_city;
+    }
+};
