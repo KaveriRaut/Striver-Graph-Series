@@ -1,0 +1,120 @@
+//Time Complexity : O(4*alpha) i.e. O(Constant)
+//Space Complexity : O(all connections + total nodes)
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Disjoint_set
+{
+private:
+    vector<int> Rank;
+    vector<int> Parent;
+    vector<int> Size;
+
+public:
+    // constructor
+    Disjoint_set(int n)
+    {
+        // initialization with 0 and size for 1-based indexing n+1
+        Rank.resize(n + 1, 0); // rank are 0 initially
+        Parent.resize(n + 1);  // parent are them-salves at initially
+        Size.resize(n + 1);  // size is 1 initially for all
+        for (int i = 0; i < n + 1; i++)
+        {
+            Parent[i] = i;
+            Size[i] = 1;
+        }
+    }
+    // get ultimate parent function
+    int findUltParent(int node)
+    {
+        // base case
+        if (node == Parent[node]) // node is itself is ultimate parent of self=>got ultiParent
+        {
+            return node;
+        }
+        // else while return just store the Parent[node] ka ultimate parent and return
+        return Parent[node] = findUltParent(Parent[node]); // this is DP approach of storing the values while returning to use them in future
+    }
+
+    // to make the union of nodes u & v BY Rank
+    void unionByRank(int u, int v)
+    {
+        // 1.get the ultimate parent of both u and v
+        int ult_Parent_u = findUltParent(u);
+        int ult_Parent_v = findUltParent(v);
+        // if ultimate parent of both are same => dont do anything and return
+        if (ult_Parent_u == ult_Parent_v)
+        {
+            return;
+        }
+
+        // 2.now get the Ranks of the corresponding ultimate parents
+        // Rank[ult_Parent_u] // this is rank of ult_parent of u
+        // Rank[ult_Parent_v] // this is rank of ult_parent of v
+
+        // 3.now attach ult_Parent of the smaller rank to larger rank
+        if (Rank[ult_Parent_u] < Rank[ult_Parent_v])
+        {
+            Parent[ult_Parent_u] = ult_Parent_v;
+        }
+        else if (Rank[ult_Parent_v] < Rank[ult_Parent_u])
+        {
+            Parent[ult_Parent_v] = ult_Parent_u;
+        }
+        else // if both ranks are same, attach in any way but=> larger rank ult_Parent ka rank will increase by 1
+        {
+            Parent[ult_Parent_u] = ult_Parent_v;
+            Rank[ult_Parent_v]++; // as here we attach the ultP of u to v=>so rank of larger v will increase
+        }
+    }
+
+    //union of nodes u & v BY Size
+    void unionBySize(int u,int v)
+    {
+        //1.get the ultimate parents
+        int ult_Parent_u = findUltParent(u);
+        int ult_Parent_v = findUltParent(v);
+        //2.now get the Size of both ult_Parents and then
+        //3. attach smaller size to larger size ult_parent =>larger ki size will increase by size of smaller in any case
+        if(Size[ult_Parent_u] < Size[ult_Parent_v])
+        {
+            Parent[ult_Parent_u] = ult_Parent_v ;
+            Size[ult_Parent_v] += Size[ult_Parent_u];
+        }
+        else  
+        {
+            Parent[ult_Parent_v] = ult_Parent_u;
+            Size[ult_Parent_u] += Size[ult_Parent_v];
+        }
+    }
+
+};
+
+int main()
+{
+    Disjoint_set ds(7);
+    ds.unionBySize(1,2); // ds.unionByRank(1,2);
+    ds.unionBySize(2,3); // ds.unionByRank(2,3);
+    ds.unionBySize(4,5); // ds.unionByRank(4,5);
+    ds.unionBySize(6,7); // ds.unionByRank(6,7);
+    ds.unionBySize(5,6); // ds.unionByRank(5,6);
+
+    //to check if (3,7) belong to same component or not => if their ultParents are same=>YES
+    if(ds.findUltParent(3)==ds.findUltParent(7))
+        cout<<"Same Component"<<endl;
+    else
+        cout<<"Not Same Component"<<endl;
+
+    ds.unionBySize(3,7); // ds.unionByRank(3,7);
+
+    //to check if (3,7) belong to same component or not => if their ultParents are same=>YES
+    if(ds.findUltParent(3)==ds.findUltParent(7))
+        cout<<"Same Component"<<endl;
+    else
+        cout<<"Not Same Component"<<endl;
+
+
+    return 0;
+}
