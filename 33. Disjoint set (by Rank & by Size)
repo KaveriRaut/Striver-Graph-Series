@@ -76,6 +76,12 @@ public:
         // 1.get the ultimate parents
         int ult_Parent_u = findUltParent(u);
         int ult_Parent_v = findUltParent(v);
+         // if ultimate parent of both are same => dont do anything and return
+        if (ult_Parent_u == ult_Parent_v)
+        {
+            return;
+        }
+        
         // 2.now get the Size of both ult_Parents and then
         // 3. attach smaller size to larger size ult_parent =>larger ki size will increase by size of smaller in any case
         if (Size[ult_Parent_u] < Size[ult_Parent_v])
