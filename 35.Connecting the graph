@@ -1,0 +1,101 @@
+
+
+class Disjoint_set
+{
+public:
+    vector<int> Parent;
+    vector<int> Size;
+
+    // constructor
+    Disjoint_set(int n)
+    {
+        // initialization with 0 and size for 1-based indexing n+1
+        Parent.resize(n + 1);  // parent are them-salves at initially
+        Size.resize(n + 1);    // size is 1 initially for all
+        for (int i = 0; i < n + 1; i++)
+        {
+            Parent[i] = i;
+            Size[i] = 1;
+        }
+    }
+    // get ultimate parent function => using DP concept with Path Compression logic
+    int findUltParent(int node)
+    {
+        // base case
+        if (node == Parent[node]) // node is itself is ultimate parent of self=>got ultiParent
+        {
+            return node;
+        }
+        // else while return just store the Parent[node] ka ultimate parent and return
+        return Parent[node] = findUltParent(Parent[node]); // this is DP approach of storing the values while returning to use them in future
+    }
+
+    // union of nodes u & v BY Size
+    void unionBySize(int u, int v)
+    {
+        // 1.get the ultimate parents
+        int ult_Parent_u = findUltParent(u);
+        int ult_Parent_v = findUltParent(v);
+         // if ultimate parent of both are same => dont do anything and return
+        if (ult_Parent_u == ult_Parent_v)
+        {
+            return;
+        }
+        // 2.now get the Size of both ult_Parents and then
+        // 3. attach smaller size to larger size ult_parent =>larger ki size will increase by size of smaller in any case
+        if (Size[ult_Parent_u] < Size[ult_Parent_v])
+        {
+            Parent[ult_Parent_u] = ult_Parent_v;
+            Size[ult_Parent_v] += Size[ult_Parent_u];
+        }
+        else
+        {
+            Parent[ult_Parent_v] = ult_Parent_u;
+            Size[ult_Parent_u] += Size[ult_Parent_v];
+        }
+    }
+};
+
+// main class to find Connecting the graph
+class Solution {
+  public:
+    int Solve(int n, vector<vector<int>>& edges) {
+        //1. maintain the vector of edges => here already given
+        Disjoint_set ds(n);
+        //2.iterate over the edges and create the graph using Disjoint_set
+        int extra_edges=0; //to count extra edges
+        for(auto it:edges)
+        {
+            int u = it[0];
+            int v = it[1];
+            //if ultimate parent is already same for (u and v) => means it is extra edge as they are already part of same component and connected
+            if(ds.findUltParent(u)==ds.findUltParent(v)) //IMP****
+            {
+                extra_edges++;
+            }
+            else //u and v not part of same compoenent => make unionBySize
+            {
+                ds.unionBySize(u,v);
+            }
+        }
+        //3.now Parent set ready to find the no. of component
+        int component_count=0;
+        for(int i=0;i<n;i++)
+        {
+            if(ds.Parent[i]==i) //self as ultimate parent means it is the component
+            {
+                component_count++;
+            }
+        }
+        //4.condition for connecting of graph in single component posible or not=>req_min_edges must be <= extra edges that exists
+        int req_min_edges = component_count-1; //IMP****
+        if(req_min_edges <= extra_edges)
+        {
+            return req_min_edges;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+};
