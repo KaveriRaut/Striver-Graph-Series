@@ -1,0 +1,126 @@
+//Using Disjoint Set data structure
+
+
+class Disjoint_set
+{
+private:
+    vector<int> Parent;
+    vector<int> Size;
+
+public:
+    // constructor
+    Disjoint_set(int n)
+    {
+        // initialization with 0 and size for 1-based indexing n+1
+        Parent.resize(n + 1);  // parent are them-salves at initially
+        Size.resize(n + 1);    // size is 1 initially for all
+        for (int i = 0; i < n + 1; i++)
+        {
+            Parent[i] = i;
+            Size[i] = 1;
+        }
+    }
+    // get ultimate parent function => using DP concept with Path Compression logic
+    int findUltParent(int node)
+    {
+        // base case
+        if (node == Parent[node]) // node is itself is ultimate parent of self=>got ultiParent
+        {
+            return node;
+        }
+        // else while return just store the Parent[node] ka ultimate parent and return
+        return Parent[node] = findUltParent(Parent[node]); // this is DP approach of storing the values while returning to use them in future
+    }
+
+    // union of nodes u & v BY Size
+    void unionBySize(int u, int v)
+    {
+        // 1.get the ultimate parents
+        int ult_Parent_u = findUltParent(u);
+        int ult_Parent_v = findUltParent(v);
+         // if ultimate parent of both are same => dont do anything and return
+        if (ult_Parent_u == ult_Parent_v)
+        {
+            return;
+        }
+        
+        // 2.now get the Size of both ult_Parents and then
+        // 3. attach smaller size to larger size ult_parent =>larger ki size will increase by size of smaller in any case
+        if (Size[ult_Parent_u] < Size[ult_Parent_v])
+        {
+            Parent[ult_Parent_u] = ult_Parent_v;
+            Size[ult_Parent_v] += Size[ult_Parent_u];
+        }
+        else
+        {
+            Parent[ult_Parent_v] = ult_Parent_u;
+            Size[ult_Parent_u] += Size[ult_Parent_v];
+        }
+    }
+};
+
+//here node => consider as particular account i.e. vector index
+//here string => to store mailID in map
+class Solution {
+  public:
+    vector<vector<string>> mergeDetails(vector<vector<string>>& details) {
+        int n=details.size();
+        //1.maintain the unordered_map 
+        unordered_map<string,int> mailToNode; //to store the mail and node
+        //2.maintain the disjoint_set data structure to merging the accounts
+        Disjoint_set ds(n);
+        //3.iterate over each mail from each account and store it in map
+        for(int i=0;i<n;i++)
+        {
+            for(int j=1;j<details[i].size();j++) //skip the userName so start from i=1 to details[i].size()
+            {
+                string mailID = details[i][j];
+                int currNode = i;
+                //before adding mail to map => check if mailID already exists in map or not
+                if(mailToNode.find(mailID)==mailToNode.end()) //already not exist in map => so add it to map as <mail,node>
+                {
+                    mailToNode[mailID] = currNode;
+                }
+                else //if already mailID exists => then make union of currMail node with already existing mail ka node
+                {
+                    int existingNode = mailToNode[mailID];
+                    ds.unionBySize(existingNode,currNode);
+                }
+            }
+        }
+        
+        //4.Now iterate over the map and creating the vector of vector of mails according to node
+        vector<string> mergeMail[n];
+        for(auto it:mailToNode)
+        {
+            string mailID = it.first;
+            int node = it.second;
+            //always push the mail to the ultimate parent node
+            int ulti_parent = ds.findUltParent(node);
+            mergeMail[ulti_parent].push_back(mailID);
+        }
+        
+        //5.Now iterate over the nodes account data structute and create the final merged answer with userName
+        vector<vector<string>> ans;
+        
+        for(int i=0;i<n;i++) 
+        {
+            if(mergeMail[i].size()==0)
+            {
+                continue; //if no mail in account=>skip it
+            }
+            //otherwise first sort it
+            sort(mergeMail[i].begin(),mergeMail[i].end());
+            vector<string> vec;
+            string user = details[i][0];//find user name of account
+            vec.push_back(user);
+            for(auto it:mergeMail[i]) //all the mails merged in vector now
+            {
+                vec.push_back(it);
+            }
+            ans.push_back(vec); //push in final vector
+        }
+        reverse(ans.begin() , ans.end());
+        return ans;
+    }
+};
